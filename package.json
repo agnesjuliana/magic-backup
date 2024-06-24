@@ -1,0 +1,28 @@
+{
+  "name": "magic-backup",
+  "version": "1.0.0",
+  "description": "Untuk memenuhi Final Project Administrasi Basis Data Kelas A",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon node ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agnesjuliana/magic-backup.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agnesjuliana/magic-backup/issues"
+  },
+  "homepage": "https://github.com/agnesjuliana/magic-backup#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mssql": "^11.0.0",
+    "nodemon": "^3.1.4",
+    "swagger": "^0.7.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
