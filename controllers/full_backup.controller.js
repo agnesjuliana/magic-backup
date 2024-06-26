@@ -1,9 +1,10 @@
 const sql = require('mssql');
+const { logError } = require('./error_report'); // Import the logError function
 
 const config = {
     user: 'sa',
-    password: '123',
-    server: '127.0.0.1',
+    password: 'Mawar1189',
+    server: 'localhost',
     database: 'WideWorldImporters',
     options: {
         encrypt: true,
@@ -19,7 +20,7 @@ const config = {
 const performBackup = async (req, res) => {
     console.log('Using the POST endpoint');
 
-    const backupPath = 'D:/perSI/4th/ABD/advanced_query/wideworldimporters.bak';
+    const backupPath = 'D:/advanced query/wideworldimporters.bak';
 
     try {
         let pool = await sql.connect(config);
@@ -30,6 +31,8 @@ const performBackup = async (req, res) => {
             TO DISK = '${backupPath}'
             WITH NOFORMAT, NOINIT, NAME = '${config.database}-Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
         `;
+        const err = "test"
+        logError(err); // contoh penggunaan
 
         console.log(backupQuery);
         await request.query(backupQuery);
@@ -37,6 +40,7 @@ const performBackup = async (req, res) => {
         res.status(200).send('Backup completed successfully.');
     } catch (err) {
         console.error('Error during database backup:', err);
+        logError(err); // Log the error to file, ini penggunaannya
         res.status(500).send('Error during database backup.');
     } finally {
         sql.close();
