@@ -1,5 +1,6 @@
 const sql = require('mssql');
 const path = require('path');
+const { logError } = require('./error_report'); // Import the logError function
 
 let intervalId = null;
 let backupInterval = 60000; // Default to 1 minute
