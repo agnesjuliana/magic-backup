@@ -1,6 +1,6 @@
 const sql = require('mssql');
 const cron = require('node-cron');
-const shell = require ('shelljs')
+const shell = require ('shelljs');
 const fs = require('fs');
 const path = require('path');
 const moment = require('moment-timezone');
