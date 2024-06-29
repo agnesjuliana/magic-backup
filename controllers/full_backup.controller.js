@@ -1,38 +1,36 @@
 const sql = require('mssql');
 const { logError } = require('./error_report'); // Import the logError function
 
-const config = {
-    user: 'sa',
-    password: 'Mawar1189',
-    server: 'localhost',
-    database: 'WideWorldImporters',
-    options: {
-        encrypt: true,
-        trustServerCertificate: true
-    }
-};
-
 /**
  * Perform a full database backup
  * @param {*} req Express request object
  * @param {*} res Express response object
  */
 const performBackup = async (req, res) => {
-    console.log('Using the POST endpoint');
+    const { password, database, backupPath } = req.body;
 
-    const backupPath = 'D:/advanced query/wideworldimporters.bak';
+    const config = {
+        user: 'sa',
+        password: password,
+        server: 'localhost',
+        database: database,
+        options: {
+            encrypt: true,
+            trustServerCertificate: true
+        }
+    };
+
+    console.log('Using the POST endpoint');
 
     try {
         let pool = await sql.connect(config);
         let request = pool.request();
 
         const backupQuery = `
-            BACKUP DATABASE [${config.database}]
+            BACKUP DATABASE [${database}]
             TO DISK = '${backupPath}'
-            WITH NOFORMAT, NOINIT, NAME = '${config.database}-Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
+            WITH NOFORMAT, NOINIT, NAME = '${database}-Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
         `;
-        const err = "test"
-        logError(err); // contoh penggunaan
 
         console.log(backupQuery);
         await request.query(backupQuery);
@@ -40,7 +38,7 @@ const performBackup = async (req, res) => {
         res.status(200).send('Backup completed successfully.');
     } catch (err) {
         console.error('Error during database backup:', err);
-        logError(err); // Log the error to file, ini penggunaannya
+        logError(err); // Log the error to file
         res.status(500).send('Error during database backup.');
     } finally {
         sql.close();
@@ -59,5 +57,5 @@ const checkService = (req, res) => {
 
 module.exports = {
     performBackup,
-    checkService
+    checkService,
 };

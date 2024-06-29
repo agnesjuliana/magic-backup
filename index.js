@@ -1,6 +1,7 @@
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const transactionLogRouter = require('./routes/transaction_log.route');
 const backupRouter = require('./routes/full_backup.route');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use(express.json());
 
 // Mount backup router
 app.use('/backup', backupRouter);
+app.use('/transaction-log', transactionLogRouter);
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
