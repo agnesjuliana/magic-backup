@@ -2,7 +2,7 @@ const sql = require('mssql');
 const { logError } = require('./error_report'); // Import the logError function
 
 /**
- * Perform a full database backup
+ * Perform a full database backup   
  * @param {*} req Express request object
  * @param {*} res Express response object
  */
