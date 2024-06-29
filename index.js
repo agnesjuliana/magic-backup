@@ -5,6 +5,7 @@ const transactionLogRouter = require('./routes/transaction_log.route');
 const backupRouter = require('./routes/full_backup.route');
 const logShipRouter = require('./routes/logShippingRoutes');
 const autoBackupRouter = require('./routes/auto_backup.route')
+const errorRouter = require('./routes/error.route')
 
 const app = express();
 const port = 3000;
@@ -45,6 +46,7 @@ app.use('/log-shipping', logShipRouter);
 app.use('/transaction-log', transactionLogRouter);
 app.use('/auto-backup', autoBackupRouter)
 app.use('/transaction-log', transactionLogRouter);
+app.use('/error-report', errorRouter)
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
