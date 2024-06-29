@@ -4,8 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const transactionLogRouter = require('./routes/transaction_log.route');
 const backupRouter = require('./routes/full_backup.route');
 const logShipRouter = require('./routes/logShippingRoutes');
-const transactionRouter = require('./routes/transaction.route');
-// const autoBackupRouter = require('./routes/auto_backup.route')
+const autoBackupRouter = require('./routes/auto_backup.route')
 
 const app = express();
 const port = 3000;
@@ -43,8 +42,8 @@ app.use(express.json());
 // Mount backup router
 app.use('/backup', backupRouter);
 app.use('/log-shipping', logShipRouter);
-app.use('/transaction-log', transactionRouter);
-// app.use('/auto-backup', autoBackupRouter)
+app.use('/transaction-log', transactionLogRouter);
+app.use('/auto-backup', autoBackupRouter)
 app.use('/transaction-log', transactionLogRouter);
 
 app.listen(port, () => {

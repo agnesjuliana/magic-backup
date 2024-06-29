@@ -19,8 +19,11 @@
   "homepage": "https://github.com/agnesjuliana/magic-backup#readme",
   "dependencies": {
     "express": "^4.19.2",
+    "moment-timezone": "^0.5.45",
     "mssql": "^11.0.0",
+    "node-cron": "^3.0.3",
     "nodemon": "^3.1.4",
+    "shelljs": "^0.8.5",
     "swagger": "^0.7.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
