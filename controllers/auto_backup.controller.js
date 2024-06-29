@@ -7,8 +7,8 @@ const moment = require('moment-timezone');
 const { logError } = require('./error_report'); // Import the logError function
 
 const config = {
-    user: 'sa2',
-    password: '0123',
+    user: 'sa',
+    password: '123',
     server: '127.0.0.1',
     database: 'WideWorldImporters',
     options: {
