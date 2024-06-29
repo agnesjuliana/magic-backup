@@ -33,7 +33,7 @@ const backupController = require('../controllers/auto_backup.controller');
  *     responses:
  *       200:
  *         description: Full backup schedule time set successfully.
- *       400:
+ *       500:
  *         description: Invalid request body or schedule time.
  */
 router.post('/set-schedule/full', (req, res) => {
@@ -76,7 +76,7 @@ router.post('/set-schedule/full', (req, res) => {
  *     responses:
  *       200:
  *         description: Differential backup schedule time set successfully.
- *       400:
+ *       500:
  *         description: Invalid request body or schedule time.
  */
 router.post('/set-schedule/diff', (req, res) => {
