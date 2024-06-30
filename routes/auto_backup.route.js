@@ -12,7 +12,7 @@ const backupController = require('../controllers/auto_backup.controller');
 
 /**
  * @swagger
- * /backup/set-schedule/full:
+ * /auto-backup/set-schedule/full:
  *   post:
  *     summary: Set schedule for full backup
  *     description: Allows users to set the schedule time for full database backup.
@@ -63,7 +63,7 @@ router.post('/set-schedule/full', async (req, res) => {
 
 /**
  * @swagger
- * /backup/set-schedule/diff:
+ * /auto-backup/set-schedule/diff:
  *   post:
  *     summary: Set schedule for differential backup
  *     description: Allows users to set the schedule time for differential database backup.
@@ -114,7 +114,7 @@ router.post('/set-schedule/diff', async (req, res) => {
 
 /**
  * @swagger
- * /backup/status:
+ * /auto-backup/status:
  *   get:
  *     summary: Get backup status
  *     description: Retrieve the status of the latest backups.
