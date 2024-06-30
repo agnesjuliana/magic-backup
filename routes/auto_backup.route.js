@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const moment = require('moment-timezone');
 const backupController = require('../controllers/auto_backup.controller');
 
 /**
@@ -11,10 +12,10 @@ const backupController = require('../controllers/auto_backup.controller');
 
 /**
  * @swagger
- * /backup/set-schedule:
+ * /backup/set-schedule/full:
  *   post:
- *     summary: Set schedule for database backup
- *     description: Allows users to set the schedule time for database backup.
+ *     summary: Set schedule for full backup
+ *     description: Allows users to set the schedule time for full database backup.
  *     tags: [Backup]
  *     requestBody:
  *       required: true
@@ -35,31 +36,79 @@ const backupController = require('../controllers/auto_backup.controller');
  *               database:
  *                 type: string
  *                 description: Name of the database to backup.
- *               backupType:
- *                 type: string
- *                 description: Type of backup ("full" or "diff").
  *               backupPath:
  *                 type: string
  *                 description: Path where the backup file will be saved.
  *     responses:
  *       200:
- *         description: Backup schedule time set successfully.
+ *         description: Full backup schedule time set successfully.
  *       400:
  *         description: Invalid request body or schedule time.
  *       500:
  *         description: Internal server error.
  */
-router.post('/set-schedule', async (req, res) => {
-    const { localTime, timeZone, password, database, backupType, backupPath } = req.body;
+router.post('/set-schedule/full', async (req, res) => {
+    const { localTime, timeZone, password, database, backupPath } = req.body;
 
-    if (!localTime || !timeZone || !password || !database || !backupType || !backupPath) {
-        return res.status(400).send('All fields (local time, time zone, password, database name, backup type, backup path) are required.');
+    if (!localTime || !timeZone || !password || !database || !backupPath) {
+        return res.status(400).send('All fields (local time, time zone, password, database name, backup path) are required.');
     }
 
     try {
-        await backupController.scheduleBackup(req, res);
+        await backupController.scheduleBackup(req, res, 'full');
     } catch (err) {
-        res.status(400).send(`Invalid time or time zone: ${err.message}`);
+        res.status(400).send(`Error setting full backup schedule time: ${err.message}`);
+    }
+});
+
+/**
+ * @swagger
+ * /backup/set-schedule/diff:
+ *   post:
+ *     summary: Set schedule for differential backup
+ *     description: Allows users to set the schedule time for differential database backup.
+ *     tags: [Backup]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               localTime:
+ *                 type: string
+ *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
+ *               timeZone:
+ *                 type: string
+ *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *               password:
+ *                 type: string
+ *                 description: Password for the database user.
+ *               database:
+ *                 type: string
+ *                 description: Name of the database to backup.
+ *               backupPath:
+ *                 type: string
+ *                 description: Path where the backup file will be saved.
+ *     responses:
+ *       200:
+ *         description: Differential backup schedule time set successfully.
+ *       400:
+ *         description: Invalid request body or schedule time.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post('/set-schedule/diff', async (req, res) => {
+    const { localTime, timeZone, password, database, backupPath } = req.body;
+
+    if (!localTime || !timeZone || !password || !database || !backupPath) {
+        return res.status(400).send('All fields (local time, time zone, password, database name, backup path) are required.');
+    }
+
+    try {
+        await backupController.scheduleBackup(req, res, 'diff');
+    } catch (err) {
+        res.status(400).send(`Error setting differential backup schedule time: ${err.message}`);
     }
 });
 
