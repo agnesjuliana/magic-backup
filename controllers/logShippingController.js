@@ -5,7 +5,7 @@ const { logError } = require('./error_report'); // Import the logError function
 
 const createSecondaryDatabase = async (password, primary_database) => {
     let pool;
-    // console.log(password)
+    console.log(password)
     try {
         const config = {
             user: 'sa',
@@ -20,7 +20,7 @@ const createSecondaryDatabase = async (password, primary_database) => {
 
         const destinationConfig = {
             user: 'sa',
-            password: `${password}`,
+            password: password,
             server: 'localhost',
             database: `${primary_database}_Secondary`,
             options: {
@@ -30,6 +30,8 @@ const createSecondaryDatabase = async (password, primary_database) => {
         };
         
         pool = await sql.connect(config);
+        console.log("success config")
+
         const request = pool.request();
 
         const createDbQuery = `
@@ -37,7 +39,6 @@ const createSecondaryDatabase = async (password, primary_database) => {
             BEGIN
                 CREATE DATABASE [${destinationConfig.database}]
             END
-            ALTER DATABASE ${destinationConfig.database} SET RECOVERY FULL
         `;
 
         await request.query(createDbQuery);
@@ -65,7 +66,7 @@ async function backupLogs( password, primary_database, backup_database_path, bac
 
     const destinationConfig = {
         user: 'sa',
-        password: `${password}`,
+        password: password,
         server: 'localhost',
         database: `${primary_database}_Secondary`,
         options: {
@@ -106,13 +107,16 @@ async function backupLogs( password, primary_database, backup_database_path, bac
 }
 
 async function restoreLogs(req, res) {
-    const { password, primary_database, database_backup_path, log_backup_path } = req.body
+    const { password, primary_database, backup_database_path, backup_log_path } = req.body
+
+    const database = `${primary_database}_Secondary`
+    console.log(database)
 
     const destinationConfig = {
         user: 'sa',
-        password: `${password}`,
+        password: password,
         server: 'localhost',
-        database: `${primary_database}_Secondary`,
+        database: database,
         options: {
             encrypt: true,
             trustServerCertificate: true
@@ -122,10 +126,10 @@ async function restoreLogs(req, res) {
     let pool;
     try {
         // Create secondary database if not already existing
-        await createSecondaryDatabase(password, destinationConfig.database);
+        await createSecondaryDatabase(password, primary_database);
 
         // Backup transaction logs
-        const backupPaths = await backupLogs(password, primary_database, database_backup_path, log_backup_path);
+        const backupPaths = await backupLogs(password, primary_database, backup_database_path, backup_log_path);
 
         // Connect to the destination SQL Server
         pool = await sql.connect(destinationConfig);
@@ -205,7 +209,7 @@ async function restoreLogs(req, res) {
 async function retrieveLogicalFileNames(primary_database, backupFilePath, password) {
     const destinationConfig = {
         user: 'sa',
-        password: `${password}`,
+        password: password,
         server: 'localhost',
         database: `${primary_database}_Secondary`,
         options: {
@@ -220,25 +224,21 @@ async function retrieveLogicalFileNames(primary_database, backupFilePath, passwo
 
         // Query to retrieve logical file names
         const getFileListQuery = `
-            USE master;
             RESTORE FILELISTONLY
             FROM DISK='${backupFilePath}';
         `;
 
         // Execute query and retrieve results
-        const result = await sql.query(getFileListQuery);
+        const result = await pool.request().query(getFileListQuery);
 
         // Extract logical file names
         const logicalFileNames = result.recordset.map(row => row.LogicalName);
-
+        console.log(logicalFileNames);
         return logicalFileNames;
     } catch (err) {
         console.error('Error retrieving logical file names:', err);
         throw err; 
     }
-    // } finally {
-    //     if (pool) await pool.close();
-    // }
 }
 
 // Function to check log shipping service status (GET endpoint)

@@ -23,11 +23,11 @@ const logShippingController = require('../controllers/logShippingController');
  *                 type: string
  *                 description: The name of the destination database.
  *                 example: AdventureWorks2022_Third
- *               backupDatabasePath:
+ *               backup_database_path:
  *                 type: string
  *                 description: The path to the full backup file.
  *                 example: path_to_full_backup.bak
- *               backupLogPath:
+ *               backup_log_path:
  *                 type: string
  *                 description: The path to the log backup file.
  *                 example: path_to_log_backup.trn
@@ -40,7 +40,7 @@ const logShippingController = require('../controllers/logShippingController');
 router.post('/', logShippingController.restoreLogs);
 
 /**
- * @swagger
+ * @swagger 
  * /log-shipping:
  *   get:
  *     summary: Check log shipping service status
