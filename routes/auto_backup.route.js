@@ -1,13 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const autoBackupController = require('../controllers/auto_backup.controller');
+const backupController = require('../controllers/auto_backup.controller');
 
 /**
  * @swagger
- * /backup/set-schedule/full:
+ * tags:
+ *   name: Backup
+ *   description: Operations related to database backup
+ */
+
+/**
+ * @swagger
+ * /backup/set-schedule:
  *   post:
- *     summary: Set schedule for full backup
- *     description: Allows users to set the schedule time for full database backup.
+ *     summary: Set schedule for database backup
+ *     description: Allows users to set the schedule time for database backup.
  *     tags: [Backup]
  *     requestBody:
  *       required: true
@@ -16,47 +23,45 @@ const autoBackupController = require('../controllers/auto_backup.controller');
  *           schema:
  *             type: object
  *             properties:
- *               date_time:
+ *               localTime:
  *                 type: string
- *                 description: Scheduled date and time for backup (e.g., "2024-07-01T12:00:00").
+ *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
  *               timeZone:
  *                 type: string
- *                 description: Time zone for the scheduled time (e.g., "Asia/Jakarta").
+ *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *               password:
+ *                 type: string
+ *                 description: Password for the database user.
+ *               database:
+ *                 type: string
+ *                 description: Name of the database to backup.
+ *               backupType:
+ *                 type: string
+ *                 description: Type of backup ("full" or "diff").
+ *               backupPath:
+ *                 type: string
+ *                 description: Path where the backup file will be saved.
  *     responses:
  *       200:
- *         description: Full backup schedule time set successfully.
- *       500:
+ *         description: Backup schedule time set successfully.
+ *       400:
  *         description: Invalid request body or schedule time.
+ *       500:
+ *         description: Internal server error.
  */
-router.post('/set-schedule/full', autoBackupController.scheduleBackup);
+router.post('/set-schedule', async (req, res) => {
+    const { localTime, timeZone, password, database, backupType, backupPath } = req.body;
 
-/**
- * @swagger
- * /backup/set-schedule/diff:
- *   post:
- *     summary: Set schedule for differential backup
- *     description: Allows users to set the schedule time for differential database backup.
- *     tags: [Backup]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               date_time:
- *                 type: string
- *                 description: Scheduled date and time for backup (e.g., "2024-07-01T12:00:00").
- *               timeZone:
- *                 type: string
- *                 description: Time zone for the scheduled time (e.g., "Asia/Jakarta").
- *     responses:
- *       200:
- *         description: Differential backup schedule time set successfully.
- *       500:
- *         description: Invalid request body or schedule time.
- */
-router.post('/set-schedule/diff', autoBackupController.scheduleBackup);
+    if (!localTime || !timeZone || !password || !database || !backupType || !backupPath) {
+        return res.status(400).send('All fields (local time, time zone, password, database name, backup type, backup path) are required.');
+    }
+
+    try {
+        await backupController.scheduleBackup(req, res);
+    } catch (err) {
+        res.status(400).send(`Invalid time or time zone: ${err.message}`);
+    }
+});
 
 /**
  * @swagger
@@ -90,6 +95,13 @@ router.post('/set-schedule/diff', autoBackupController.scheduleBackup);
  *       500:
  *         description: Error retrieving backup status.
  */
-router.get('/status', autoBackupController.getBackupLog);
+router.get('/status', async (req, res) => {
+    try {
+        const logs = await backupController.getBackupLog();
+        res.status(200).json(logs);
+    } catch (err) {
+        res.status(500).send(`Error retrieving backup status: ${err.message}`);
+    }
+});
 
 module.exports = router;
