@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const moment = require('moment-timezone');
 const backupController = require('../controllers/auto_backup.controller');
 
 /**
@@ -22,6 +23,9 @@ const backupController = require('../controllers/auto_backup.controller');
  *         application/json:
  *           schema:
  *             type: object
+  *             required:
+ *               - localTime
+ *               - timeZone
  *             properties:
  *               localTime:
  *                 type: string
@@ -78,6 +82,9 @@ router.post('/set-schedule/full', async (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - localTime
+ *               - timeZone
  *             properties:
  *               localTime:
  *                 type: string
@@ -137,6 +144,9 @@ router.post('/set-schedule/diff', async (req, res) => {
  *               type: array
  *               items:
  *                 type: object
+ *             required:
+ *               - localTime
+ *               - timeZone
  *                 properties:
  *                   timestamp:
  *                     type: string
