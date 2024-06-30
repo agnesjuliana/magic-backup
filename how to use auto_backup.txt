@@ -4,7 +4,8 @@ Intro
 - moment-timezone: npm install moment-timezone
 or use npm install mssql moment-timezone
 Running
-2. To set the schedule in Swagger, fill the localTime, timeZone, password in user 'sa' (for using another user, change "user:('sa')" in auto_backup.controller.js), database, backupType, and backupPath, Example;
+2. To set the schedule in Swagger, fill the localTime, timeZone, password in user 'sa' (for using another user, change "user:('sa')" in auto_backup.controller.js), 
+database, backupType, and backupPath, Example;
 {
   "localTime": "2024-06-30T08:55:00",
   "timeZone": "Asia/Jakarta",
