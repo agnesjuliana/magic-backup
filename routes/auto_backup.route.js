@@ -12,7 +12,7 @@ const backupController = require('../controllers/auto_backup.controller');
 
 /**
  * @swagger
- * /backup/set-schedule/full:
+ * /auto-backup/set-schedule/full:
  *   post:
  *     summary: Set schedule for full backup
  *     description: Allows users to set the schedule time for full database backup.
@@ -26,19 +26,24 @@ const backupController = require('../controllers/auto_backup.controller');
  *             properties:
  *               localTime:
  *                 type: string
- *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
+ *                 description: Local time for backup.
+ *                 example: 2024-07-01T00:00:00
  *               timeZone:
  *                 type: string
- *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *                 description: Time zone for the local time.
+ *                 example: Asia/Jakarta
  *               password:
  *                 type: string
  *                 description: Password for the database user.
+ *                 example: your_password
  *               database:
  *                 type: string
  *                 description: Name of the database to backup.
+ *                 example: your_database
  *               backupPath:
  *                 type: string
  *                 description: Path where the backup file will be saved.
+ *                 example: C:/ABD A/Tes/coba_keamanan.bak
  *     responses:
  *       200:
  *         description: Full backup schedule time set successfully.
@@ -63,7 +68,7 @@ router.post('/set-schedule/full', async (req, res) => {
 
 /**
  * @swagger
- * /backup/set-schedule/diff:
+ * /auto-backup/set-schedule/diff:
  *   post:
  *     summary: Set schedule for differential backup
  *     description: Allows users to set the schedule time for differential database backup.
@@ -77,19 +82,24 @@ router.post('/set-schedule/full', async (req, res) => {
  *             properties:
  *               localTime:
  *                 type: string
- *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
+ *                 description: Local time for backup.
+ *                 example: 2024-07-01T00:00:00
  *               timeZone:
  *                 type: string
- *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *                 description: Time zone for the local time.
+ *                 example: Asia/Jakarta
  *               password:
  *                 type: string
  *                 description: Password for the database user.
+ *                 example: your_password
  *               database:
  *                 type: string
  *                 description: Name of the database to backup.
+ *                 example: your_database
  *               backupPath:
  *                 type: string
  *                 description: Path where the backup file will be saved.
+ *                 example: C:/ABD A/Tes/coba_keamanan.bak
  *     responses:
  *       200:
  *         description: Differential backup schedule time set successfully.
@@ -114,7 +124,7 @@ router.post('/set-schedule/diff', async (req, res) => {
 
 /**
  * @swagger
- * /backup/status:
+ * /auto-backup/status:
  *   get:
  *     summary: Get backup status
  *     description: Retrieve the status of the latest backups.

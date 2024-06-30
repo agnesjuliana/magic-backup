@@ -1,0 +1,26 @@
+[
+  {
+    "timestamp": "2024-06-30T04:50:00.733Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
+  },
+  {
+    "timestamp": "2024-06-30T05:34:00.594Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
+  },
+  {
+    "timestamp": "2024-06-30T06:26:00.528Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
+  },
+  {
+    "timestamp": "2024-06-30T06:32:00.506Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
+  }
+]
