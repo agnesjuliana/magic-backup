@@ -1,14 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const moment = require('moment-timezone');
-const backupController = require('../controllers/auto_backup.controller');
-
-/**
- * @swagger
- * tags:
- *   name: Backup
- *   description: Operations related to database backup
- */
+const autoBackupController = require('../controllers/auto_backup.controller');
 
 /**
  * @swagger
@@ -24,34 +16,19 @@ const backupController = require('../controllers/auto_backup.controller');
  *           schema:
  *             type: object
  *             properties:
- *               localTime:
+ *               date_time:
  *                 type: string
- *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
+ *                 description: Scheduled date and time for backup (e.g., "2024-07-01T12:00:00").
  *               timeZone:
  *                 type: string
- *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *                 description: Time zone for the scheduled time (e.g., "Asia/Jakarta").
  *     responses:
  *       200:
  *         description: Full backup schedule time set successfully.
  *       500:
  *         description: Invalid request body or schedule time.
  */
-router.post('/set-schedule/full', (req, res) => {
-    const { localTime, timeZone } = req.body;
-
-    if (!localTime || !timeZone) {
-        return res.status(400).send('Local time and time zone are required.');
-    }
-
-    try {
-        const utcTime = moment.tz(localTime, timeZone).utc().format();
-        backupController.scheduleBackup(null, utcTime, 'full')
-            .then(() => res.status(200).send('Full backup schedule time set successfully.'))
-            .catch(err => res.status(500).send(`Error setting full backup schedule time: ${err}`));
-    } catch (err) {
-        res.status(400).send(`Invalid time or time zone: ${err.message}`);
-    }
-});
+router.post('/set-schedule/full', autoBackupController.scheduleBackup);
 
 /**
  * @swagger
@@ -67,34 +44,19 @@ router.post('/set-schedule/full', (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               localTime:
+ *               date_time:
  *                 type: string
- *                 description: Local time for backup (e.g., "2024-07-01T00:00:00").
+ *                 description: Scheduled date and time for backup (e.g., "2024-07-01T12:00:00").
  *               timeZone:
  *                 type: string
- *                 description: Time zone for the local time (e.g., "Asia/Jakarta").
+ *                 description: Time zone for the scheduled time (e.g., "Asia/Jakarta").
  *     responses:
  *       200:
  *         description: Differential backup schedule time set successfully.
  *       500:
  *         description: Invalid request body or schedule time.
  */
-router.post('/set-schedule/diff', (req, res) => {
-    const { localTime, timeZone } = req.body;
-
-    if (!localTime || !timeZone) {
-        return res.status(400).send('Local time and time zone are required.');
-    }
-
-    try {
-        const utcTime = moment.tz(localTime, timeZone).utc().format();
-        backupController.scheduleBackup(null, utcTime, 'diff')
-            .then(() => res.status(200).send('Differential backup schedule time set successfully.'))
-            .catch(err => res.status(500).send(`Error setting differential backup schedule time: ${err}`));
-    } catch (err) {
-        res.status(400).send(`Invalid time or time zone: ${err.message}`);
-    }
-});
+router.post('/set-schedule/diff', autoBackupController.scheduleBackup);
 
 /**
  * @swagger
@@ -128,13 +90,6 @@ router.post('/set-schedule/diff', (req, res) => {
  *       500:
  *         description: Error retrieving backup status.
  */
-router.get('/status', async (req, res) => {
-    try {
-        const logs = await backupController.getBackupLog();
-        res.status(200).json(logs);
-    } catch (err) {
-        res.status(500).send(`Error retrieving backup status: ${err.message}`);
-    }
-});
+router.get('/status', autoBackupController.getBackupLog);
 
 module.exports = router;

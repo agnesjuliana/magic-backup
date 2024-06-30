@@ -4,18 +4,7 @@ const path = require('path');
 const moment = require('moment-timezone');
 const { logError } = require('./error_report'); // Import the logError function
 
-const config = {
-    user: 'sa2',
-    password: '0123',
-    server: '127.0.0.1',
-    database: 'WideWorldImporters',
-    options: {
-        encrypt: true,
-        trustServerCertificate: true
-    }
-};
-
-const backupLogPath = path.join(__dirname, 'backup_log.json');
+let backupLogFilePath = path.join(__dirname, 'backup_log.json'); // Ensure correct variable name
 
 /**
  * Log the backup status
@@ -34,7 +23,7 @@ const logBackupStatus = (timestamp, backupType, success, message) => {
     
     logs.push(logEntry);
     fs.writeFileSync(backupLogFilePath, JSON.stringify(logs, null, 2));
-}; 
+};
 
 const getBackupLog = async () => {
     if (fs.existsSync(backupLogFilePath)) {
@@ -46,83 +35,75 @@ const getBackupLog = async () => {
 };
 
 /**
- * Perform a database backup (full or differential)
- * @param {string} backupType Type of backup: 'full' or 'diff'
- */
-const performBackup = async (backupType) => {
-    let backupPath;
-    let backupDescription;
-
-    if (backupType === 'full') {
-        backupPath = 'D:\FP ABD\WideWorldImporters-Full.bak';
-        backupDescription = `${config.database}-Full Backup`;
-    } else if (backupType === 'diff') {
-        backupPath = 'D:\FP ABD\WideWorldImporters-Full.bak';
-        backupDescription = `${config.database}-Diff Backup`;
-    } else {
-        console.error('Invalid backup type. Use "full" or "diff".');
-        return;
-    }
-
-    try {
-        let pool = await sql.connect(config);
-        let request = pool.request();
-
-        let backupQuery;
-
-        if (backupType === 'full') {
-            backupQuery = `
-                BACKUP DATABASE [${config.database}]
-                TO DISK = '${backupPath}'
-                WITH NOFORMAT, NOINIT, NAME = '${backupDenscription}', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
-            `;
-        } else if (backupType === 'diff') {
-            backupQuery = `
-                BACKUP DATABASE [${config.database}]
-                TO DISK = '${backupPath}'
-                WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = '${backupDescription}', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
-            `;
-        }
-
-        console.log(backupQuery);
-        await request.query(backupQuery);
-        console.log(`Database ${backupType} backup completed successfully.`);
-        logBackupStatus(new Date().toISOString(), backupType, true, `Database ${backupType} backup completed successfully.`);
-    } catch (err) {
-        console.error(`Error during ${backupType} database backup:`, err);
-        logBackupStatus(new Date().toISOString(), backupType, false, `Error during ${backupType} database backup: ${err.message}`);
-        logError(err); // Log the error to file
-    } finally {
-        sql.close();
-    }
-};
-
-/**
  * Schedule a backup job
- * @param {string} date_start_temp Temporary start date string in any format
- * @param {string} backupType Type of backup: 'full' or 'diff'
- * @param {string} timeZone Time zone for scheduling (e.g., "Asia/Jakarta")
+ * @param {*} req Express request object
+ * @param {*} res Express response object
  */
-const scheduleBackup = (date_start_temp, backupType, timeZone) => {
-    try {
-        // Convert date_start_temp to UTC
-        const scheduledTimeUTC = moment.utc(date_start_temp).format("ddd MMM DD YYYY HH:mm:ss");
+const scheduleBackup = async (req, res) => {
+    const { date_time, timeZone, backupType } = req.body;
 
-        // Convert UTC time to Asia/Jakarta time zone
-        const scheduledTimeJakarta = moment.tz(scheduledTimeUTC, "Asia/Jakarta");
+    try {
+        // Convert date_time to Asia/Jakarta time zone
+        const scheduledTimeJakarta = moment.tz(date_time, timeZone);
 
         // Calculate delay in milliseconds
         const now = moment();
         const delay = scheduledTimeJakarta.diff(now);
 
-        setTimeout(() => {
+        setTimeout(async () => {
             console.log(`Scheduled ${backupType} backup running at ${scheduledTimeJakarta.format()}`);
-            performBackup(backupType);
+            await performBackup(req, res);
         }, delay);
         
+        res.status(200).send(`Backup scheduled successfully for ${scheduledTimeJakarta.format()}.`);
     } catch (err) {
         console.error('Error scheduling backup:', err);
         logError(err); // Log the error to file
+        res.status(500).send(`Error scheduling backup: ${err.message}`);
+    }
+};
+
+/**
+ * Perform a database backup (full or differential)
+ * @param {*} req Express request object
+ * @param {*} res Express response object
+ */
+const performBackup = async (req, res) => {
+    const { password, database, backupPath } = req.body;
+
+    const config = {
+        user: 'sa',
+        password: password,
+        server: 'localhost',
+        database: database,
+        options: {
+            encrypt: true,
+            trustServerCertificate: true
+        }
+    };
+
+    try {
+        let pool = await sql.connect(config);
+        let request = pool.request();
+
+        const backupQuery = `
+            BACKUP DATABASE [${database}]
+            TO DISK = '${backupPath}'
+            WITH NOFORMAT, NOINIT, NAME = '${database}-Full Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
+        `;
+
+        console.log(backupQuery);
+        await request.query(backupQuery);
+        console.log('Database backup completed successfully.');
+        logBackupStatus(new Date().toISOString(), 'full', true, `Database ${database} backup completed successfully.`);
+        res.status(200).send('Backup completed successfully.');
+    } catch (err) {
+        console.error(`Error during database backup: ${err.message}`);
+        logBackupStatus(new Date().toISOString(), 'full', false, `Error during database backup: ${err.message}`);
+        logError(err); // Log the error to file
+        res.status(500).send(`Error during database backup: ${err.message}`);
+    } finally {
+        sql.close();
     }
 };
 
