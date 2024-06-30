@@ -1,0 +1,26 @@
+Intro
+1. Before running the programs, install npm:
+- mssql: npm install mssql
+- moment-timezone: npm install moment-timezone
+or use npm install mssql moment-timezone
+2. To set the schedule in Swagger, fill the localTime, timeZone, password in user 'sa' (for using another user, change "user:('sa')" in auto_backup.controller.js), database, backupType, and backupPath, Example;
+{
+  "localTime": "2024-06-30T08:55:00",
+  "timeZone": "Asia/Jakarta",
+  "password": "0123",
+  "database": "tugas_security",
+  "backupType": "full",
+  "backupPath": "D:/Trial"
+} //semuanya bisa diganti, tetapi timeZone khusus Asia/Jakarta, breakdown di bawah;
+>2024-06-30(for dateTime)T08:55:00(is 08:55AM or 08:00 WIB GMT+7) -> penulisan digabung
+>backupType: "full" or "diff" (choose one of them)
+>backupPath: "D:/Trial"
+=> Harapan output
+[
+  {
+    "timestamp": "2024-06-28T21:00:00Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
+  }
+]
