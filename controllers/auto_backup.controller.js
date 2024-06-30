@@ -1,15 +1,15 @@
 const sql = require('mssql');
-const moment = require('moment-timezone');
 const fs = require('fs');
 const path = require('path');
-const { logError } = require('./error_report');
+const moment = require('moment-timezone');
+const { logError } = require('./error_report'); // Import the logError function
 
-const backupLogFilePath = path.join(__dirname, 'backup_log.json');
+const backupLogFilePath = path.join(__dirname, 'backup_log.json'); // Define backup log file path
 
 /**
  * Log the backup status
  * @param {string} timestamp Timestamp of the backup event
- * @param {string} backupType Type of backup ('full' or 'diff')
+ * @param {string} backupType Type of backup: 'full' or 'diff'
  * @param {boolean} success Whether the backup was successful
  * @param {string} message Additional message or error information
  */
@@ -17,36 +17,46 @@ const logBackupStatus = (timestamp, backupType, success, message) => {
     const logEntry = { timestamp, backupType, success, message };
     let logs = [];
 
-    if (fs.existsSync(backupLogFilePath)) {
-        const logData = fs.readFileSync(backupLogFilePath);
-        logs = JSON.parse(logData);
+    try {
+        if (fs.existsSync(backupLogFilePath)) {
+            const logData = fs.readFileSync(backupLogFilePath, 'utf8');
+            logs = JSON.parse(logData);
+        }
+        
+        logs.push(logEntry);
+        fs.writeFileSync(backupLogFilePath, JSON.stringify(logs, null, 2));
+    } catch (err) {
+        console.error('Error writing backup log:', err);
+        logError(err); // Log the error to file
     }
-
-    logs.push(logEntry);
-    fs.writeFileSync(backupLogFilePath, JSON.stringify(logs, null, 2));
 };
 
 /**
- * Get backup logs
+ * Retrieve backup log from file
  * @returns {Array} Array of backup log entries
  */
 const getBackupLog = async () => {
-    if (fs.existsSync(backupLogFilePath)) {
-        const logData = fs.readFileSync(backupLogFilePath);
-        return JSON.parse(logData);
-    } else {
+    try {
+        if (fs.existsSync(backupLogFilePath)) {
+            const logData = fs.readFileSync(backupLogFilePath, 'utf8');
+            return JSON.parse(logData);
+        } else {
+            return [];
+        }
+    } catch (err) {
+        console.error('Error reading backup log:', err);
+        logError(err); // Log the error to file
         return [];
     }
 };
 
 /**
- * Perform a database backup (full or differential)
+ * Perform database backup
  * @param {Object} req Express request object
  * @param {Object} res Express response object
- * @param {string} backupType Type of backup ('full' or 'diff')
  */
-const performBackup = async (req, res, backupType) => {
-    const { password, database, backupPath } = req.body;
+const performBackup = async (req, res) => {
+    const { password, database, backupPath, backupType } = req.body;
 
     const config = {
         user: 'sa',
@@ -64,7 +74,6 @@ const performBackup = async (req, res, backupType) => {
         let request = pool.request();
 
         let backupQuery;
-
         if (backupType === 'full') {
             backupQuery = `
                 BACKUP DATABASE [${database}]
@@ -78,21 +87,27 @@ const performBackup = async (req, res, backupType) => {
                 WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = '${database}-Diff Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;
             `;
         } else {
-            return res.status(400).send('Invalid backup type. Use "full" or "diff".');
+            res.status(400).send('Invalid backup type. Use "full" or "diff".');
+            return;
         }
 
         console.log(backupQuery);
         await request.query(backupQuery);
-        console.log(`Database ${backupType} backup completed successfully.`);
-        logBackupStatus(new Date().toISOString(), backupType, true, `Database ${backupType} backup completed successfully.`);
-        res.status(200).send(`${backupType} backup completed successfully.`);
+        console.log('Database backup completed successfully.');
+        res.status(200).send('Backup completed successfully.');
+        logBackupStatus(new Date().toISOString(), backupType, true, 'Database backup completed successfully.');
     } catch (err) {
-        console.error(`Error during ${backupType} database backup: ${err.message}`);
-        logBackupStatus(new Date().toISOString(), backupType, false, `Error during ${backupType} database backup: ${err.message}`);
-        logError(err);
-        res.status(500).send(`Error during ${backupType} database backup: ${err.message}`);
+        console.error('Error during database backup:', err);
+        logError(err); // Log the error to file
+        res.status(500).send('Error during database backup.');
+        logBackupStatus(new Date().toISOString(), backupType, false, `Error during database backup: ${err.message}`);
     } finally {
-        sql.close();
+        try {
+            await sql.close();
+        } catch (err) {
+            console.error('Error closing SQL connection:', err);
+            logError(err); // Log the error to file
+        }
     }
 };
 
@@ -100,10 +115,9 @@ const performBackup = async (req, res, backupType) => {
  * Schedule a backup job
  * @param {Object} req Express request object
  * @param {Object} res Express response object
- * @param {string} backupType Type of backup ('full' or 'diff')
  */
-const scheduleBackup = async (req, res, backupType) => {
-    const { localTime, timeZone } = req.body;
+const scheduleBackup = async (req, res) => {
+    const { localTime, timeZone, backupType } = req.body;
 
     try {
         const scheduledTime = moment.tz(localTime, timeZone);
@@ -116,14 +130,14 @@ const scheduleBackup = async (req, res, backupType) => {
 
         setTimeout(async () => {
             console.log(`Scheduled ${backupType} backup running at ${scheduledTime.format()}`);
-            await performBackup(req, res, backupType);
+            await performBackup(req, res);
         }, delay);
 
-        return Promise.resolve(); // Resolve the promise after scheduling
+        res.status(200).send(`Backup scheduled successfully for ${scheduledTime.format()}.`);
     } catch (err) {
         console.error('Error scheduling backup:', err);
-        logError(err);
-        throw new Error(`Error scheduling backup: ${err.message}`);
+        logError(err); // Log the error to file
+        res.status(500).send(`Error scheduling backup: ${err.message}`);
     }
 };
 
