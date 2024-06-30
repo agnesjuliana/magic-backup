@@ -22,5 +22,11 @@
     "backupType": "full",
     "success": true,
     "message": "Database full backup completed successfully."
+  },
+  {
+    "timestamp": "2024-06-30T09:30:00.730Z",
+    "backupType": "full",
+    "success": true,
+    "message": "Database full backup completed successfully."
   }
 ]

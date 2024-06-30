@@ -1,0 +1,16 @@
+2024-06-30T08:55:00.098Z - Error: Cannot set headers after they are sent to the client
+Stack: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:659:11)
+    at ServerResponse.header (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\node_modules\express\lib\response.js:795:10)
+    at ServerResponse.send (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\node_modules\express\lib\response.js:175:12)
+    at performBackup (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\controllers\auto_backup.controller.js:90:29)
+    at async Timeout._onTimeout (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\controllers\auto_backup.controller.js:133:13)
+
+2024-06-30T09:09:00.167Z - Error: Cannot set headers after they are sent to the client
+Stack: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:659:11)
+    at ServerResponse.header (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\node_modules\express\lib\response.js:795:10)
+    at ServerResponse.send (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\node_modules\express\lib\response.js:175:12)
+    at performBackup (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\controllers\auto_backup.controller.js:90:29)
+    at async Timeout._onTimeout (C:\xampp\htdocs\Fix_FinalProjectABD\magic-backup\controllers\auto_backup.controller.js:133:13)
+
