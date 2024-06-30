@@ -27,7 +27,7 @@ const logBackupStatus = (timestamp, backupType, success, message) => {
         fs.writeFileSync(backupLogFilePath, JSON.stringify(logs, null, 2));
     } catch (err) {
         console.error('Error writing backup log:', err);
-        logError(err); // Log the error to file
+        logError(err);
     }
 };
 
@@ -45,7 +45,7 @@ const getBackupLog = async () => {
         }
     } catch (err) {
         console.error('Error reading backup log:', err);
-        logError(err); // Log the error to file
+        logError(err);
         return [];
     }
 };
@@ -55,14 +55,15 @@ const getBackupLog = async () => {
  * @param {Object} req Express request object
  * @param {Object} res Express response object
  */
+
 const performBackup = async (req, res) => {
     const { password, database, backupPath, backupType } = req.body;
 
     const config = {
         user: 'sa',
-        password: password,
+        password,
         server: 'localhost',
-        database: database,
+        database,
         options: {
             encrypt: true,
             trustServerCertificate: true
@@ -98,7 +99,7 @@ const performBackup = async (req, res) => {
         logBackupStatus(new Date().toISOString(), backupType, true, 'Database backup completed successfully.');
     } catch (err) {
         console.error('Error during database backup:', err);
-        logError(err); // Log the error to file
+        logError(err);
         res.status(500).send('Error during database backup.');
         logBackupStatus(new Date().toISOString(), backupType, false, `Error during database backup: ${err.message}`);
     } finally {
@@ -106,7 +107,7 @@ const performBackup = async (req, res) => {
             await sql.close();
         } catch (err) {
             console.error('Error closing SQL connection:', err);
-            logError(err); // Log the error to file
+            logError(err);
         }
     }
 };
@@ -116,6 +117,7 @@ const performBackup = async (req, res) => {
  * @param {Object} req Express request object
  * @param {Object} res Express response object
  */
+
 const scheduleBackup = async (req, res) => {
     const { localTime, timeZone, backupType } = req.body;
 
@@ -136,7 +138,7 @@ const scheduleBackup = async (req, res) => {
         res.status(200).send(`Backup scheduled successfully for ${scheduledTime.format()}.`);
     } catch (err) {
         console.error('Error scheduling backup:', err);
-        logError(err); // Log the error to file
+        logError(err);
         res.status(500).send(`Error scheduling backup: ${err.message}`);
     }
 };
