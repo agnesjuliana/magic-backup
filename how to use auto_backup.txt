@@ -1,19 +1,20 @@
 Intro
-1. Before running the programs, install npm:
-- mssql: npm install mssql
-- moment-timezone: npm install moment-timezone
-or use npm install mssql moment-timezone
+1. Before running the programs, ensure that you have installed Node.js on your device. 
+If you haven't installed it yet, you can download it from https://nodejs.org/en/download/prebuilt-installer. 
+Also, make sure the SQL Server service is running on your device to access your server. 
+Then, install the dependencies using the VSCode terminal "npm install" and these too:
+- mssql: "npm install mssql"
+- moment-timezone: "npm install moment-timezone"
+- or use "npm install mssql moment-timezone"
+2. To start the programs in Swagger UI, run "npm run start" in the VSCode terminal
 Running
-2. To set the schedule in Swagger, fill the localTime, timeZone, password in user 'sa' (for using another user, change "user:('sa')" in auto_backup.controller.js), 
-database, backupType, and backupPath, Example;
+3. To set the schedule in Swagger, fill the localTime, timeZone, password in user 'sa' 
+(for using another user, change "user:('sa')" in auto_backup.controller.js), 
+database, and backupPath, Example;
 {
   "localTime": "2024-06-30T08:55:00",
-  "timeZone": "Asia/Jakarta",
+  "timeZone": "Asia/Jakarta", //[benua]/[ibu kota]
   "password": "0123", //disesuaikan dengan akun yang ada di device
-  "database": "tugas_security", //nama atau judul database
-  "backupType": "full", 
-  "backupPath": "D:/Trial/tugas_security-full.bak"
-} //semuanya bisa diganti, tetapi timeZone khusus Asia/Jakarta, breakdown di bawah;
->2024-06-30(for dateTime)T08:55:00(is 08:55AM or 08:00 WIB GMT+7) -> penulisan digabung
->backupType: "full" or "diff" (choose one of them)
->backupPath: "D:/Trial"
+  "database": "tugas_security", //nama atau judul database 
+  "backupPath": "D:/Trial/tugas_security-full.bak" //lokasi tujuan untuk file backup
+} 
